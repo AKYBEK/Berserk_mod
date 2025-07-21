@@ -6,6 +6,6 @@
       "type": "minecraft:fixed",
       "biome": "minecraft:the_void"
     },
-    "settings": "berserkmod:empty_settings"
+    "settings": "berserkmod:void_settings"
   }
 }

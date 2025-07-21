@@ -43,7 +43,7 @@ public class BehelitItem extends Item {
             ServerLevel targetLevel = serverPlayer.server.getLevel(ModDimensions.THE_HAND_KEY);
             if (targetLevel != null) {
                 serverPlayer.teleportTo(targetLevel, 0.5, 70, 0.5, serverPlayer.getYRot(), serverPlayer.getXRot());
-                serverPlayer.sendSystemMessage(Component.literal("You have been transported to the Hand of God..."));
+                serverPlayer.sendSystemMessage(Component.literal("Вы попали в длань Господа"));
             } else {
                 serverPlayer.sendSystemMessage(Component.literal("The dimension is not available."));
             }
