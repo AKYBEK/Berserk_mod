@@ -1,0 +1,11 @@
+{
+  "type": "berserkmod:the_hand_of_the_god",
+  "generator": {
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:plains"
+    },
+    "settings": "berserkmod:empty_settings"
+  }
+}
