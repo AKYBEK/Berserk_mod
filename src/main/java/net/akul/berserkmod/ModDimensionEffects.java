@@ -14,8 +14,8 @@ public class ModDimensionEffects extends DimensionSpecialEffects {
 
     @Override
     public Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
-        // Красный туман
-        return new Vec3(0.545, 0.0, 0.0); // #8B0000 в RGB
+        // Красный туман цвета #8B0000
+        return new Vec3(0.545, 0.0, 0.0);
     }
 
     @Override
