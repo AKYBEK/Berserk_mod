@@ -43,9 +43,9 @@ public class BehelitItem extends Item {
             ServerLevel targetLevel = serverPlayer.server.getLevel(ModDimensions.THE_HAND_KEY);
             if (targetLevel != null) {
                 serverPlayer.teleportTo(targetLevel, 0.5, 70, 0.5, serverPlayer.getYRot(), serverPlayer.getXRot());
-                serverPlayer.sendSystemMessage(Component.literal("Вы попали в длань Господа"));
+                serverPlayer.sendSystemMessage(Component.literal("Вы попали в длань Господа").withStyle(net.minecraft.ChatFormatting.DARK_RED));
             } else {
-                serverPlayer.sendSystemMessage(Component.literal("The dimension is not available."));
+                serverPlayer.sendSystemMessage(Component.literal("Измерение недоступно.").withStyle(net.minecraft.ChatFormatting.DARK_RED));
             }
         }
 
