@@ -1,100 +1,91 @@
 {
-  "credit": "Made with Blockbench",
   "parent": "item/generated",
   "textures": {
-    "layer0": "berserkmod:item/behelit",
-    "particle": "berserkmod:item/behelit"
+    "layer0": "berserkmod:item/behelit"
   },
   "elements": [
     {
-      "name": "cube",
       "from": [11, 13, 11],
       "to": [15, 14, 15],
       "faces": {
-        "north": {"uv": [7, 6.75, 8, 7], "texture": "berserkmod:item/behelit"},
-        "east": {"uv": [6, 6.75, 7, 7], "texture": "berserkmod:item/behelit"},
-        "south": {"uv": [9, 6.75, 10, 7], "texture": "berserkmod:item/behelit"},
-        "west": {"uv": [8, 6.75, 9, 7], "texture": "berserkmod:item/behelit"},
-        "up": {"uv": [8, 6.75, 7, 5.75], "texture": "berserkmod:item/behelit"},
-        "down": {"uv": [9, 5.75, 8, 6.75], "texture": "berserkmod:item/behelit"}
+        "north": {"uv": [7, 6.75, 8, 7], "texture": "#layer0"},
+        "east": {"uv": [6, 6.75, 7, 7], "texture": "#layer0"},
+        "south": {"uv": [9, 6.75, 10, 7], "texture": "#layer0"},
+        "west": {"uv": [8, 6.75, 9, 7], "texture": "#layer0"},
+        "up": {"uv": [8, 6.75, 7, 5.75], "texture": "#layer0"},
+        "down": {"uv": [9, 5.75, 8, 6.75], "texture": "#layer0"}
       }
     },
     {
-      "name": "cube",
       "from": [11, 0, 11],
       "to": [15, 1, 15],
       "faces": {
-        "north": {"uv": [7, 8, 8, 8.25], "texture": "berserkmod:item/behelit"},
-        "east": {"uv": [6, 8, 7, 8.25], "texture": "berserkmod:item/behelit"},
-        "south": {"uv": [9, 8, 10, 8.25], "texture": "berserkmod:item/behelit"},
-        "west": {"uv": [8, 8, 9, 8.25], "texture": "berserkmod:item/behelit"},
-        "up": {"uv": [8, 8, 7, 7], "texture": "berserkmod:item/behelit"},
-        "down": {"uv": [9, 7, 8, 8], "texture": "berserkmod:item/behelit"}
+        "north": {"uv": [7, 8, 8, 8.25], "texture": "#layer0"},
+        "east": {"uv": [6, 8, 7, 8.25], "texture": "#layer0"},
+        "south": {"uv": [9, 8, 10, 8.25], "texture": "#layer0"},
+        "west": {"uv": [8, 8, 9, 8.25], "texture": "#layer0"},
+        "up": {"uv": [8, 8, 7, 7], "texture": "#layer0"},
+        "down": {"uv": [9, 7, 8, 8], "texture": "#layer0"}
       }
     },
     {
-      "name": "cube",
       "from": [10, 1, 10],
       "to": [16, 2, 16],
       "faces": {
-        "north": {"uv": [1.5, 5.5, 3, 5.75], "texture": "berserkmod:item/behelit"},
-        "east": {"uv": [1.5, 5.5, 3, 5.75], "texture": "berserkmod:item/behelit"},
-        "south": {"uv": [1.5, 5.5, 3, 5.75], "texture": "berserkmod:item/behelit"},
-        "west": {"uv": [1.5, 5.5, 3, 5.75], "texture": "berserkmod:item/behelit"},
-        "up": {"uv": [1.5, 5.5, 3, 5.75], "texture": "berserkmod:item/behelit"},
-        "down": {"uv": [1.5, 5.5, 3, 5.75], "texture": "berserkmod:item/behelit"}
+        "north": {"uv": [1.5, 5.5, 3, 5.75], "texture": "#layer0"},
+        "east": {"uv": [1.5, 5.5, 3, 5.75], "texture": "#layer0"},
+        "south": {"uv": [1.5, 5.5, 3, 5.75], "texture": "#layer0"},
+        "west": {"uv": [1.5, 5.5, 3, 5.75], "texture": "#layer0"},
+        "up": {"uv": [1.5, 5.5, 3, 5.75], "texture": "#layer0"},
+        "down": {"uv": [1.5, 5.5, 3, 5.75], "texture": "#layer0"}
       }
     },
     {
-      "name": "cube",
       "from": [9, 2, 9],
       "to": [17, 10, 17],
       "faces": {
-        "north": {"uv": [6, 2, 8, 4], "texture": "berserkmod:item/behelit"},
-        "east": {"uv": [6, 2, 8, 4], "texture": "berserkmod:item/behelit"},
-        "south": {"uv": [6, 2, 8, 4], "texture": "berserkmod:item/behelit"},
-        "west": {"uv": [6, 2, 8, 4], "texture": "berserkmod:item/behelit"},
-        "up": {"uv": [6, 2, 8, 4], "texture": "berserkmod:item/behelit"},
-        "down": {"uv": [6, 2, 8, 4], "texture": "berserkmod:item/behelit"}
+        "north": {"uv": [6, 2, 8, 4], "texture": "#layer0"},
+        "east": {"uv": [6, 2, 8, 4], "texture": "#layer0"},
+        "south": {"uv": [6, 2, 8, 4], "texture": "#layer0"},
+        "west": {"uv": [6, 2, 8, 4], "texture": "#layer0"},
+        "up": {"uv": [6, 2, 8, 4], "texture": "#layer0"},
+        "down": {"uv": [6, 2, 8, 4], "texture": "#layer0"}
       }
     },
     {
-      "name": "cube",
       "from": [10, 10, 10],
       "to": [16, 11, 16],
       "faces": {
-        "north": {"uv": [1.5, 7.25, 3, 7.5], "texture": "berserkmod:item/behelit"},
-        "east": {"uv": [1.5, 7.25, 3, 7.5], "texture": "berserkmod:item/behelit"},
-        "south": {"uv": [1.5, 7.25, 3, 7.5], "texture": "berserkmod:item/behelit"},
-        "west": {"uv": [1.5, 7.25, 3, 7.5], "texture": "berserkmod:item/behelit"},
-        "up": {"uv": [1.5, 7.25, 3, 7.5], "texture": "berserkmod:item/behelit"},
-        "down": {"uv": [1.5, 7.25, 3, 7.5], "texture": "berserkmod:item/behelit"}
+        "north": {"uv": [1.5, 7.25, 3, 7.5], "texture": "#layer0"},
+        "east": {"uv": [1.5, 7.25, 3, 7.5], "texture": "#layer0"},
+        "south": {"uv": [1.5, 7.25, 3, 7.5], "texture": "#layer0"},
+        "west": {"uv": [1.5, 7.25, 3, 7.5], "texture": "#layer0"},
+        "up": {"uv": [1.5, 7.25, 3, 7.5], "texture": "#layer0"},
+        "down": {"uv": [1.5, 7.25, 3, 7.5], "texture": "#layer0"}
       }
     },
     {
-      "name": "cube",
       "from": [10, 11, 10],
       "to": [16, 12, 16],
       "faces": {
-        "north": {"uv": [7.5, 5.5, 9, 5.75], "texture": "berserkmod:item/behelit"},
-        "east": {"uv": [6, 5.5, 7.5, 5.75], "texture": "berserkmod:item/behelit"},
-        "south": {"uv": [10.5, 5.5, 12, 5.75], "texture": "berserkmod:item/behelit"},
-        "west": {"uv": [9, 5.5, 10.5, 5.75], "texture": "berserkmod:item/behelit"},
-        "up": {"uv": [9, 5.5, 7.5, 4], "texture": "berserkmod:item/behelit"},
-        "down": {"uv": [10.5, 4, 9, 5.5], "texture": "berserkmod:item/behelit"}
+        "north": {"uv": [7.5, 5.5, 9, 5.75], "texture": "#layer0"},
+        "east": {"uv": [6, 5.5, 7.5, 5.75], "texture": "#layer0"},
+        "south": {"uv": [10.5, 5.5, 12, 5.75], "texture": "#layer0"},
+        "west": {"uv": [9, 5.5, 10.5, 5.75], "texture": "#layer0"},
+        "up": {"uv": [9, 5.5, 7.5, 4], "texture": "#layer0"},
+        "down": {"uv": [10.5, 4, 9, 5.5], "texture": "#layer0"}
       }
     },
     {
-      "name": "cube",
       "from": [11, 12, 11],
       "to": [15, 13, 15],
       "faces": {
-        "north": {"uv": [1, 8.5, 2, 8.75], "texture": "berserkmod:item/behelit"},
-        "east": {"uv": [0, 8.5, 1, 8.75], "texture": "berserkmod:item/behelit"},
-        "south": {"uv": [3, 8.5, 4, 8.75], "texture": "berserkmod:item/behelit"},
-        "west": {"uv": [2, 8.5, 3, 8.75], "texture": "berserkmod:item/behelit"},
-        "up": {"uv": [2, 8.5, 1, 7.5], "texture": "berserkmod:item/behelit"},
-        "down": {"uv": [3, 7.5, 2, 8.5], "texture": "berserkmod:item/behelit"}
+        "north": {"uv": [1, 8.5, 2, 8.75], "texture": "#layer0"},
+        "east": {"uv": [0, 8.5, 1, 8.75], "texture": "#layer0"},
+        "south": {"uv": [3, 8.5, 4, 8.75], "texture": "#layer0"},
+        "west": {"uv": [2, 8.5, 3, 8.75], "texture": "#layer0"},
+        "up": {"uv": [2, 8.5, 1, 7.5], "texture": "#layer0"},
+        "down": {"uv": [3, 7.5, 2, 8.5], "texture": "#layer0"}
       }
     }
   ],
