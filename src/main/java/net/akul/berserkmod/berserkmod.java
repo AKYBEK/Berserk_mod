@@ -2,6 +2,7 @@ package net.akul.berserkmod;
 
 import com.mojang.logging.LogUtils;
 import net.akul.berserkmod.item.ModItems;
+import net.akul.berserkmod.item.ModCreativeModeTabs;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,6 +36,7 @@ public class berserkmod
 
         // Register mod items
         ModItems.register(modEventBus);
+        ModCreativeModeTabs.register(modEventBus);
 
         // Register config
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -60,7 +62,7 @@ public class berserkmod
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
-        // Add your custom items to creative tabs here if needed
+        // Этот метод больше не нужен, так как мы используем собственную вкладку
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
