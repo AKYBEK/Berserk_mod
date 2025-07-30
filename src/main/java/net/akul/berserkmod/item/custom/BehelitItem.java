@@ -2,21 +2,22 @@ package net.akul.berserkmod.item.custom;
 
 import net.akul.berserkmod.ModDimensions;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.HashMap;
@@ -33,43 +34,59 @@ public class BehelitItem extends Item {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @Override
-    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        if (!(attacker instanceof Player player)) return false;
-        if (player.level().isClientSide) return false;
-
-        // Добавляем эффект тьмы атакующему
-        player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 20 * 5, 0, false, false));
+    @SubscribeEvent
+    public void onPlayerInteractEntity(PlayerInteractEvent.EntityInteract event) {
+        Player player = event.getEntity();
+        ItemStack itemStack = player.getItemInHand(event.getHand());
         
-        // Если цель - игрок, добавляем эффект и ему
-        if (target instanceof Player targetPlayer) {
-            targetPlayer.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 20 * 5, 0, false, false));
+        // Проверяем, что игрок держит Behelit
+        if (itemStack.getItem() != this) return;
+        
+        // Проверяем, что цель - другой игрок
+        if (!(event.getTarget() instanceof Player targetPlayer)) return;
+        
+        // Проверяем, что это не тот же игрок
+        if (player.getUUID().equals(targetPlayer.getUUID())) return;
+        
+        // Проверяем, что мы на сервере
+        if (player.level().isClientSide) return;
+        
+        ServerPlayer serverPlayer = (ServerPlayer) player;
+        ServerPlayer serverTarget = (ServerPlayer) targetPlayer;
+        
+        // Добавляем эффект тьмы обоим игрокам на 5 секунд
+        serverPlayer.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 20 * 5, 0, false, false));
+        serverTarget.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 20 * 5, 0, false, false));
+        
+        // Отправляем сообщения игрокам
+        serverPlayer.sendSystemMessage(Component.literal("Behelit активирован! Тьма окутывает вас...").withStyle(ChatFormatting.DARK_RED));
+        serverTarget.sendSystemMessage(Component.literal("На вас воздействует сила Behelit!").withStyle(ChatFormatting.DARK_RED));
+        
+        // Телепортируем обоих игроков в измерение "Рука Бога"
+        ServerLevel targetLevel = serverPlayer.server.getLevel(ModDimensions.THE_HAND_KEY);
+        if (targetLevel != null) {
+            // Сохраняем текущие измерения игроков
+            playerOriginalDimensions.put(serverPlayer.getUUID(), serverPlayer.serverLevel());
+            playerOriginalDimensions.put(serverTarget.getUUID(), serverTarget.serverLevel());
+            
+            // Телепортируем обоих игроков
+            serverPlayer.teleportTo(targetLevel, 0.5, 70, 0.5, serverPlayer.getYRot(), serverPlayer.getXRot());
+            serverTarget.teleportTo(targetLevel, 3.5, 70, 3.5, serverTarget.getYRot(), serverTarget.getXRot());
+            
+            serverPlayer.sendSystemMessage(Component.literal("Вы попали в длань Господа").withStyle(ChatFormatting.DARK_RED));
+            serverTarget.sendSystemMessage(Component.literal("Вы попали в длань Господа").withStyle(ChatFormatting.DARK_RED));
+            
+            // Запускаем таймер на 5 минут для обоих игроков
+            long currentTime = player.level().getGameTime();
+            playersInDimension.put(serverPlayer.getUUID(), currentTime);
+            playersInDimension.put(serverTarget.getUUID(), currentTime);
         }
-
-        return super.hurtEnemy(stack, target, attacker);
-    }
-
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
-            // Попытка телепортации в измерение "Рука Бога"
-            ServerLevel targetLevel = serverPlayer.server.getLevel(ModDimensions.THE_HAND_KEY);
-            if (targetLevel != null) {
-                // Сохраняем текущее измерение игрока
-                playerOriginalDimensions.put(serverPlayer.getUUID(), serverPlayer.serverLevel());
-                
-                // Телепортируем в измерение
-                serverPlayer.teleportTo(targetLevel, 0.5, 70, 0.5, serverPlayer.getYRot(), serverPlayer.getXRot());
-                serverPlayer.sendSystemMessage(Component.literal("Вы попали в длань Господа").withStyle(ChatFormatting.DARK_RED));
-                
-                // Запускаем таймер на 5 минут
-                playersInDimension.put(serverPlayer.getUUID(), level.getGameTime());
-            } else {
-                serverPlayer.sendSystemMessage(Component.literal("Измерение недоступно.").withStyle(ChatFormatting.DARK_RED));
-            }
-        }
-
-        return InteractionResultHolder.success(player.getItemInHand(hand));
+        
+        // Уничтожаем Behelit
+        itemStack.shrink(1);
+        
+        // Отменяем дальнейшую обработку события
+        event.setCanceled(true);
     }
 
     @SubscribeEvent
