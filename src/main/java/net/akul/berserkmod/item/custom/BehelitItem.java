@@ -1,6 +1,8 @@
 package net.akul.berserkmod.item.custom;
 
 import net.akul.berserkmod.ModDimensions;
+import net.akul.berserkmod.compat.ModCompat;
+import net.akul.berserkmod.compat.PassiveSkillTreeCompat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -85,8 +87,34 @@ public class BehelitItem extends Item {
         // Уничтожаем Behelit
         itemStack.shrink(1);
         
+        // Интеграция с другими модами
+        handleModIntegration(serverPlayer, serverTarget);
+        
         // Отменяем дальнейшую обработку события
         event.setCanceled(true);
+    }
+    
+    /**
+     * Обработка интеграции с другими модами при активации Behelit
+     */
+    private void handleModIntegration(ServerPlayer activator, ServerPlayer target) {
+        // Интеграция с Passive Skill Tree
+        if (ModCompat.isPassiveSkillTreeLoaded()) {
+            // Даем очки навыков за активацию Behelit
+            PassiveSkillTreeCompat.addSkillPoints(activator, 5);
+            PassiveSkillTreeCompat.addSkillPoints(target, 3);
+        }
+        
+        // Можно добавить интеграцию с другими модами
+        if (ModCompat.isPlayerExLoaded()) {
+            // Интеграция с PlayerEx (система атрибутов)
+            handlePlayerExIntegration(activator, target);
+        }
+    }
+    
+    private void handlePlayerExIntegration(ServerPlayer activator, ServerPlayer target) {
+        // Здесь будет логика для PlayerEx
+        // Например, изменение атрибутов игроков
     }
 
     @SubscribeEvent
