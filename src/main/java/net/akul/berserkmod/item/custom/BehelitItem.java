@@ -10,17 +10,15 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.HashMap;
@@ -37,87 +35,63 @@ public class BehelitItem extends Item {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    @SubscribeEvent
-    public void onPlayerInteractEntity(PlayerInteractEvent.EntityInteract event) {
-        Player player = event.getEntity();
-        ItemStack itemStack = player.getItemInHand(event.getHand());
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack itemStack = player.getItemInHand(hand);
         
-        // Проверяем, что игрок держит Behelit
-        if (itemStack.getItem() != this) return;
-        
-        // Проверяем, что цель - другой игрок
-        if (!(event.getTarget() instanceof Player targetPlayer)) return;
-        
-        // Проверяем, что это не тот же игрок
-        if (player.getUUID().equals(targetPlayer.getUUID())) return;
-        
-        // Проверяем, что мы на сервере
-        if (player.level().isClientSide) return;
-        
-        ServerPlayer serverPlayer = (ServerPlayer) player;
-        ServerPlayer serverTarget = (ServerPlayer) targetPlayer;
-        
-        // Добавляем эффект тьмы обоим игрокам на 5 секунд
-        serverPlayer.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 20 * 5, 0, false, false));
-        serverTarget.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 20 * 5, 0, false, false));
-        
-        // Отправляем сообщения игрокам
-        serverPlayer.sendSystemMessage(Component.literal("Behelit активирован! Тьма окутывает вас...").withStyle(ChatFormatting.DARK_RED));
-        serverTarget.sendSystemMessage(Component.literal("На вас воздействует сила Behelit!").withStyle(ChatFormatting.DARK_RED));
-        
-        // Отмечаем, что оба игрока использовали Behelit
-        PlayerBerserkData.markPlayerUsedBehelit(serverPlayer);
-        PlayerBerserkData.markPlayerUsedBehelit(serverTarget);
-        
-        // Телепортируем обоих игроков в измерение "Рука Бога"
-        ServerLevel targetLevel = serverPlayer.server.getLevel(ModDimensions.THE_HAND_KEY);
-        if (targetLevel != null) {
-            // Сохраняем текущие измерения игроков
-            playerOriginalDimensions.put(serverPlayer.getUUID(), serverPlayer.serverLevel());
-            playerOriginalDimensions.put(serverTarget.getUUID(), serverTarget.serverLevel());
+        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+            // Добавляем эффект тьмы на 5 секунд
+            serverPlayer.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 20 * 5, 0, false, false));
             
-            // Телепортируем обоих игроков
-            serverPlayer.teleportTo(targetLevel, 0.5, 70, 0.5, serverPlayer.getYRot(), serverPlayer.getXRot());
-            serverTarget.teleportTo(targetLevel, 3.5, 70, 3.5, serverTarget.getYRot(), serverTarget.getXRot());
+            // Отправляем сообщение игроку
+            serverPlayer.sendSystemMessage(Component.literal("Behelit активирован! Тьма окутывает вас...").withStyle(ChatFormatting.DARK_RED));
             
-            serverPlayer.sendSystemMessage(Component.literal("Вы попали в длань Господа").withStyle(ChatFormatting.DARK_RED));
-            serverTarget.sendSystemMessage(Component.literal("Вы попали в длань Господа").withStyle(ChatFormatting.DARK_RED));
+            // Отмечаем, что игрок использовал Behelit
+            PlayerBerserkData.markPlayerUsedBehelit(serverPlayer);
             
-            // Запускаем таймер на 5 минут для обоих игроков
-            long currentTime = player.level().getGameTime();
-            playersInDimension.put(serverPlayer.getUUID(), currentTime);
-            playersInDimension.put(serverTarget.getUUID(), currentTime);
+            // Телепортируем игрока в измерение "Рука Бога"
+            ServerLevel targetLevel = serverPlayer.server.getLevel(ModDimensions.THE_HAND_KEY);
+            if (targetLevel != null) {
+                // Сохраняем текущее измерение игрока
+                playerOriginalDimensions.put(serverPlayer.getUUID(), serverPlayer.serverLevel());
+                
+                // Телепортируем игрока
+                serverPlayer.teleportTo(targetLevel, 0.5, 70, 0.5, serverPlayer.getYRot(), serverPlayer.getXRot());
+                serverPlayer.sendSystemMessage(Component.literal("Вы попали в длань Господа").withStyle(ChatFormatting.DARK_RED));
+                
+                // Запускаем таймер на 5 минут
+                long currentTime = level.getGameTime();
+                playersInDimension.put(serverPlayer.getUUID(), currentTime);
+            }
+            
+            // Уничтожаем Behelit
+            itemStack.shrink(1);
+            
+            // Интеграция с другими модами
+            handleModIntegration(serverPlayer);
         }
         
-        // Уничтожаем Behelit
-        itemStack.shrink(1);
-        
-        // Интеграция с другими модами
-        handleModIntegration(serverPlayer, serverTarget);
-        
-        // Отменяем дальнейшую обработку события
-        event.setCanceled(true);
+        return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide());
     }
     
     /**
      * Обработка интеграции с другими модами при активации Behelit
      */
-    private void handleModIntegration(ServerPlayer activator, ServerPlayer target) {
+    private void handleModIntegration(ServerPlayer player) {
         // Интеграция с Passive Skill Tree
         if (ModCompat.isPassiveSkillTreeLoaded()) {
             // Даем очки навыков за активацию Behelit
-            PassiveSkillTreeCompat.addSkillPoints(activator, 5);
-            PassiveSkillTreeCompat.addSkillPoints(target, 3);
+            PassiveSkillTreeCompat.addSkillPoints(player, 5);
         }
         
         // Можно добавить интеграцию с другими модами
         if (ModCompat.isPlayerExLoaded()) {
             // Интеграция с PlayerEx (система атрибутов)
-            handlePlayerExIntegration(activator, target);
+            handlePlayerExIntegration(player);
         }
     }
     
-    private void handlePlayerExIntegration(ServerPlayer activator, ServerPlayer target) {
+    private void handlePlayerExIntegration(ServerPlayer player) {
         // Здесь будет логика для PlayerEx
         // Например, изменение атрибутов игроков
     }
