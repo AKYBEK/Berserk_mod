@@ -3,6 +3,8 @@ package net.akul.berserkmod;
 import com.mojang.logging.LogUtils;
 import net.akul.berserkmod.item.ModItems;
 import net.akul.berserkmod.item.ModCreativeModeTabs;
+import net.akul.berserkmod.compat.ModCompat;
+import net.akul.berserkmod.compat.JEICompat;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
@@ -50,6 +52,9 @@ public class berserkmod
     {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
+        
+        // Проверяем совместимость с модами
+        checkModCompatibility();
 
         if (Config.logDirtBlock)
             LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
@@ -57,6 +62,27 @@ public class berserkmod
         LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
 
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
+    }
+    
+    private void checkModCompatibility() {
+        LOGGER.info("Checking mod compatibility...");
+        
+        if (ModCompat.isPassiveSkillTreeLoaded()) {
+            LOGGER.info("Passive Skill Tree detected - enabling compatibility");
+        }
+        
+        if (ModCompat.isJEILoaded()) {
+            LOGGER.info("JEI detected - enabling compatibility");
+            JEICompat.registerItemInfo();
+        }
+        
+        if (ModCompat.isCuriosLoaded()) {
+            LOGGER.info("Curios detected - enabling compatibility");
+        }
+        
+        if (ModCompat.isPlayerExLoaded()) {
+            LOGGER.info("PlayerEx detected - enabling compatibility");
+        }
     }
 
     // Add the example block item to the building blocks tab
