@@ -1,6 +1,7 @@
 package net.akul.berserkmod.item.custom;
 
 import net.akul.berserkmod.ModDimensions;
+import net.akul.berserkmod.data.PlayerBerserkData;
 import net.akul.berserkmod.compat.ModCompat;
 import net.akul.berserkmod.compat.PassiveSkillTreeCompat;
 import net.minecraft.ChatFormatting;
@@ -63,6 +64,10 @@ public class BehelitItem extends Item {
         // Отправляем сообщения игрокам
         serverPlayer.sendSystemMessage(Component.literal("Behelit активирован! Тьма окутывает вас...").withStyle(ChatFormatting.DARK_RED));
         serverTarget.sendSystemMessage(Component.literal("На вас воздействует сила Behelit!").withStyle(ChatFormatting.DARK_RED));
+        
+        // Отмечаем, что оба игрока использовали Behelit
+        PlayerBerserkData.markPlayerUsedBehelit(serverPlayer);
+        PlayerBerserkData.markPlayerUsedBehelit(serverTarget);
         
         // Телепортируем обоих игроков в измерение "Рука Бога"
         ServerLevel targetLevel = serverPlayer.server.getLevel(ModDimensions.THE_HAND_KEY);

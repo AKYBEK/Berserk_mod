@@ -1,11 +1,22 @@
 package net.akul.berserkmod.compat;
 
+import net.akul.berserkmod.ModDimensions;
+import net.akul.berserkmod.client.gui.BerserkSkillScreen;
+import net.akul.berserkmod.data.PlayerBerserkData;
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.ModList;
 
 /**
  * Совместимость с модом Passive Skill Tree
  */
+@Mod.EventBusSubscriber(modid = "berserkmod", bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class PassiveSkillTreeCompat {
     private static final String MOD_ID = "passiveskillstree";
     
@@ -42,6 +53,38 @@ public class PassiveSkillTreeCompat {
         } catch (Exception e) {
             System.err.println("Error checking skill: " + e.getMessage());
             return false;
+        }
+    }
+    
+    /**
+     * Перехватывает открытие меню Passive Skill Tree и заменяет его на наше
+     */
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onScreenOpen(ScreenEvent.Opening event) {
+        if (!isLoaded()) return;
+        
+        Player player = Minecraft.getInstance().player;
+        if (player == null) return;
+        
+        // Проверяем, что это экран Passive Skill Tree
+        String screenClassName = event.getScreen().getClass().getSimpleName();
+        if (!screenClassName.contains("SkillTree") && !screenClassName.contains("PassiveSkill")) {
+            return;
+        }
+        
+        // Проверяем условия для замены меню:
+        // 1. Игрок использовал Behelit
+        // 2. Игрок НЕ находится в измерении "Рука Бога"
+        boolean hasUsedBehelit = PlayerBerserkData.hasPlayerUsedBehelit(player);
+        boolean inHandDimension = player.level().dimension() == ModDimensions.THE_HAND_KEY;
+        
+        if (hasUsedBehelit && !inHandDimension) {
+            // Отменяем открытие оригинального экрана
+            event.setCanceled(true);
+            
+            // Открываем наш экран навыков Берсерка
+            Minecraft.getInstance().setScreen(new BerserkSkillScreen());
         }
     }
 }
