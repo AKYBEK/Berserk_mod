@@ -60,18 +60,22 @@ public class PassiveSkillTreeCompat {
      * Перехватывает открытие меню Passive Skill Tree и заменяет его на наше
      */
     @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public static void onScreenOpen(ScreenEvent.Opening event) {
         if (!isLoaded()) return;
         
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
         
-        // Проверяем, что это экран Passive Skill Tree
-        String screenClassName = event.getScreen().getClass().getSimpleName();
-        if (!screenClassName.contains("SkillTree") && !screenClassName.contains("PassiveSkill")) {
+        // Проверяем, что это экран Passive Skill Tree (более точная проверка)
+        String screenClassName = event.getScreen().getClass().getName();
+        if (!screenClassName.contains("passiveskillstree") && 
+            !screenClassName.contains("SkillTree") && 
+            !screenClassName.contains("PassiveSkill")) {
             return;
         }
+        
+        System.out.println("Detected Passive Skill Tree screen: " + screenClassName);
         
         // Проверяем условия для замены меню:
         // 1. Игрок использовал Behelit
@@ -79,12 +83,17 @@ public class PassiveSkillTreeCompat {
         boolean hasUsedBehelit = PlayerBerserkData.hasPlayerUsedBehelit(player);
         boolean inHandDimension = player.level().dimension() == ModDimensions.THE_HAND_KEY;
         
+        System.out.println("Has used Behelit: " + hasUsedBehelit + ", In Hand dimension: " + inHandDimension);
+        
         if (hasUsedBehelit && !inHandDimension) {
+            System.out.println("Replacing Passive Skill Tree screen with Berserk Skills screen");
             // Отменяем открытие оригинального экрана
             event.setCanceled(true);
             
             // Открываем наш экран навыков Берсерка
             Minecraft.getInstance().setScreen(new BerserkSkillScreen());
+        } else {
+            System.out.println("Conditions not met for screen replacement");
         }
     }
 }
