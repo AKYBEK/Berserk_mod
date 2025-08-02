@@ -29,52 +29,52 @@ public class BerserkSkillScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(guiGraphics);
-        
+
         // Рендерим темно-красный фон (в стиле Берсерка)
-        guiGraphics.fill(this.leftPos, this.topPos, 
-                        this.leftPos + this.imageWidth, this.topPos + this.imageHeight, 
-                        0xFF8B0000); // Темно-красный цвет
-        
+        guiGraphics.fill(this.leftPos, this.topPos,
+                this.leftPos + this.imageWidth, this.topPos + this.imageHeight,
+                0xFF8B0000); // Темно-красный цвет
+
         // Рендерим черную границу
-        guiGraphics.fill(this.leftPos - 2, this.topPos - 2, 
-                        this.leftPos + this.imageWidth + 2, this.topPos + this.imageHeight + 2, 
-                        0xFF000000); // Черная граница
-        
+        guiGraphics.fill(this.leftPos - 2, this.topPos - 2,
+                this.leftPos + this.imageWidth + 2, this.topPos + this.imageHeight + 2,
+                0xFF000000); // Черная граница
+
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        
+
         // Заголовок меню
         Component title = Component.translatable("gui.berserkmod.berserk_skills");
-        guiGraphics.drawCenteredString(this.font, title, 
-                                     this.leftPos + this.imageWidth / 2, 
-                                     this.topPos + 15, 
-                                     0xFFFFFF);
-        
+        guiGraphics.drawCenteredString(this.font, title,
+                this.leftPos + this.imageWidth / 2,
+                this.topPos + 15,
+                0xFFFFFF);
+
         // Подзаголовок
         Component subtitle = Component.literal("Berserk Skill Tree");
-        guiGraphics.drawCenteredString(this.font, subtitle, 
-                                     this.leftPos + this.imageWidth / 2, 
-                                     this.topPos + 30, 
-                                     0xFFD3D3D3);
-        
+        guiGraphics.drawCenteredString(this.font, subtitle,
+                this.leftPos + this.imageWidth / 2,
+                this.topPos + 30,
+                0xFFD3D3D3);
+
         // Временный текст о том, что меню пустое
         Component placeholder1 = Component.literal("Skills will be added here");
-        guiGraphics.drawCenteredString(this.font, placeholder1, 
-                                     this.leftPos + this.imageWidth / 2, 
-                                     this.topPos + this.imageHeight / 2 - 10, 
-                                     0xFFFFFFFF);
-        
+        guiGraphics.drawCenteredString(this.font, placeholder1,
+                this.leftPos + this.imageWidth / 2,
+                this.topPos + this.imageHeight / 2 - 10,
+                0xFFFFFFFF);
+
         Component placeholder2 = Component.literal("(Menu is currently empty)");
-        guiGraphics.drawCenteredString(this.font, placeholder2, 
-                                     this.leftPos + this.imageWidth / 2, 
-                                     this.topPos + this.imageHeight / 2 + 10, 
-                                     0xFFAAAAAA);
-        
+        guiGraphics.drawCenteredString(this.font, placeholder2,
+                this.leftPos + this.imageWidth / 2,
+                this.topPos + this.imageHeight / 2 + 10,
+                0xFFAAAAAA);
+
         // Информация о том, что игрок использовал Behelit
         Component behelitInfo = Component.literal("You have used the Behelit...");
-        guiGraphics.drawCenteredString(this.font, behelitInfo, 
-                                     this.leftPos + this.imageWidth / 2, 
-                                     this.topPos + this.imageHeight - 30, 
-                                     0xFFFF6B6B);
+        guiGraphics.drawCenteredString(this.font, behelitInfo,
+                this.leftPos + this.imageWidth / 2,
+                this.topPos + this.imageHeight - 30,
+                0xFFFF6B6B);
     }
 
     @Override
