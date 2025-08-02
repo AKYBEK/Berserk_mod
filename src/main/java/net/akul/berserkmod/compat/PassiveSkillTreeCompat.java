@@ -1,7 +1,6 @@
 package net.akul.berserkmod.compat;
 
 import net.akul.berserkmod.ModDimensions;
-import net.akul.berserkmod.client.gui.BerserkSkillScreen;
 import net.akul.berserkmod.data.PlayerBerserkData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
@@ -33,67 +32,57 @@ public class PassiveSkillTreeCompat {
         try {
             // Здесь будет интеграция с API Passive Skill Tree
             // Пример: SkillTreeAPI.addSkillPoints(player, points);
-            // Пока что просто логируем
-            System.out.println("Adding " + points + " skill points to " + player.getName().getString());
+            System.out.println("[BerserkMod] Adding " + points + " skill points to " + player.getName().getString());
         } catch (Exception e) {
-            System.err.println("Error integrating with Passive Skill Tree: " + e.getMessage());
+            System.err.println("[BerserkMod] Error integrating with Passive Skill Tree: " + e.getMessage());
         }
     }
     
     /**
-     * Проверяет, есть ли у игрока определенный навык
-     */
-    public static boolean hasSkill(Player player, String skillName) {
-        if (!isLoaded()) return false;
-        
-        try {
-            // Здесь будет проверка навыка через API
-            // return SkillTreeAPI.hasSkill(player, skillName);
-            return false; // Временно
-        } catch (Exception e) {
-            System.err.println("Error checking skill: " + e.getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Перехватывает открытие меню Passive Skill Tree и заменяет его на наше
+     * Перехватывает открытие меню Passive Skill Tree и БЛОКИРУЕТ его для игроков, использовавших Behelit
      */
     @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent(priority = EventPriority.HIGH)
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onScreenOpen(ScreenEvent.Opening event) {
         if (!isLoaded()) return;
         
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
         
-        // Проверяем, что это экран Passive Skill Tree (более точная проверка)
+        // Проверяем, что это экран Passive Skill Tree
         String screenClassName = event.getScreen().getClass().getName();
-        if (!screenClassName.contains("passiveskillstree") && 
-            !screenClassName.contains("SkillTree") && 
-            !screenClassName.contains("PassiveSkill")) {
+        boolean isPassiveSkillScreen = screenClassName.contains("passiveskillstree") || 
+                                     screenClassName.contains("SkillTree") || 
+                                     screenClassName.contains("PassiveSkill") ||
+                                     screenClassName.contains("SkillScreen");
+        
+        if (!isPassiveSkillScreen) {
             return;
         }
         
-        System.out.println("Detected Passive Skill Tree screen: " + screenClassName);
+        System.out.println("[BerserkMod] Detected Passive Skill Tree screen: " + screenClassName);
         
-        // Проверяем условия для замены меню:
+        // Проверяем условия для блокировки меню:
         // 1. Игрок использовал Behelit
         // 2. Игрок НЕ находится в измерении "Рука Бога"
         boolean hasUsedBehelit = PlayerBerserkData.hasPlayerUsedBehelit(player);
         boolean inHandDimension = player.level().dimension() == ModDimensions.THE_HAND_KEY;
         
-        System.out.println("Has used Behelit: " + hasUsedBehelit + ", In Hand dimension: " + inHandDimension);
+        System.out.println("[BerserkMod] Has used Behelit: " + hasUsedBehelit + ", In Hand dimension: " + inHandDimension);
         
         if (hasUsedBehelit && !inHandDimension) {
-            System.out.println("Replacing Passive Skill Tree screen with Berserk Skills screen");
-            // Отменяем открытие оригинального экрана
+            System.out.println("[BerserkMod] BLOCKING Passive Skill Tree screen - player used Behelit!");
+            
+            // ПОЛНОСТЬЮ БЛОКИРУЕМ открытие меню Passive Skill Tree
             event.setCanceled(true);
             
-            // Открываем наш экран навыков Берсерка
-            Minecraft.getInstance().setScreen(new BerserkSkillScreen());
+            // Показываем сообщение игроку
+            if (player != null) {
+                player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                    "§4[Berserk] Your soul has been marked by the Behelit. The old ways of power are closed to you."));
+            }
         } else {
-            System.out.println("Conditions not met for screen replacement");
+            System.out.println("[BerserkMod] Allowing normal Passive Skill Tree screen");
         }
     }
 }
