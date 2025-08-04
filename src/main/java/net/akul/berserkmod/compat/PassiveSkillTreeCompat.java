@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.ModList;
 
 /**
- * Совместимость с модом Passive Skill Tree
+ * Compatibility with Passive Skill Tree mod
  */
 @Mod.EventBusSubscriber(modid = "berserkmod", bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class PassiveSkillTreeCompat {
@@ -25,61 +25,39 @@ public class PassiveSkillTreeCompat {
     }
     
     /**
-     * Добавляет очки навыков игроку (если мод загружен)
-     */
-    public static void addSkillPoints(Player player, int points) {
-        if (!isLoaded()) return;
-        
-        try {
-            // Здесь будет интеграция с API Passive Skill Tree
-            // Пример: SkillTreeAPI.addSkillPoints(player, points);
-            // Пока что просто логируем
-            System.out.println("Adding " + points + " skill points to " + player.getName().getString());
-        } catch (Exception e) {
-            System.err.println("Error integrating with Passive Skill Tree: " + e.getMessage());
-        }
-    }
-    
-    /**
-     * Проверяет, есть ли у игрока определенный навык
-     */
-    public static boolean hasSkill(Player player, String skillName) {
-        if (!isLoaded()) return false;
-        
-        try {
-            // Здесь будет проверка навыка через API
-            // return SkillTreeAPI.hasSkill(player, skillName);
-            return false; // Временно
-        } catch (Exception e) {
-            System.err.println("Error checking skill: " + e.getMessage());
-            return false;
-        }
-    }
-    
-    /**
-     * Перехватывает открытие меню Passive Skill Tree и заменяет его на наше
+     * Intercepts Passive Skill Tree menu opening and replaces it with our Berserk menu
      */
     @OnlyIn(Dist.CLIENT)
-    @SubscribeEvent(priority = EventPriority.HIGH)
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onScreenOpen(ScreenEvent.Opening event) {
         if (!isLoaded()) return;
         
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
         
-        // Проверяем, что это экран Passive Skill Tree (более точная проверка)
-        String screenClassName = event.getScreen().getClass().getName();
-        if (!screenClassName.contains("passiveskillstree") && 
-            !screenClassName.contains("SkillTree") && 
-            !screenClassName.contains("PassiveSkill")) {
+        // Check if this is a Passive Skill Tree screen
+        String screenClassName = event.getScreen().getClass().getSimpleName().toLowerCase();
+        String fullClassName = event.getScreen().getClass().getName().toLowerCase();
+        
+        System.out.println("Screen opening: " + event.getScreen().getClass().getName());
+        
+        // More comprehensive check for Passive Skill Tree screens
+        boolean isPassiveSkillScreen = screenClassName.contains("skill") || 
+                                     screenClassName.contains("passive") ||
+                                     screenClassName.contains("tree") ||
+                                     fullClassName.contains("passiveskillstree") ||
+                                     fullClassName.contains("skill") ||
+                                     fullClassName.contains("passive");
+        
+        if (!isPassiveSkillScreen) {
             return;
         }
         
-        System.out.println("Detected Passive Skill Tree screen: " + screenClassName);
+        System.out.println("Detected Passive Skill Tree screen: " + event.getScreen().getClass().getName());
         
-        // Проверяем условия для замены меню:
-        // 1. Игрок использовал Behelit
-        // 2. Игрок НЕ находится в измерении "Рука Бога"
+        // Check conditions for menu replacement:
+        // 1. Player used Behelit
+        // 2. Player is NOT in "Hand of God" dimension
         boolean hasUsedBehelit = PlayerBerserkData.hasPlayerUsedBehelit(player);
         boolean inHandDimension = player.level().dimension() == ModDimensions.THE_HAND_KEY;
         
@@ -87,11 +65,13 @@ public class PassiveSkillTreeCompat {
         
         if (hasUsedBehelit && !inHandDimension) {
             System.out.println("Replacing Passive Skill Tree screen with Berserk Skills screen");
-            // Отменяем открытие оригинального экрана
+            // Cancel the original screen opening
             event.setCanceled(true);
             
-            // Открываем наш экран навыков Берсерка
-            Minecraft.getInstance().setScreen(new BerserkSkillScreen());
+            // Open our Berserk skills screen instead
+            Minecraft.getInstance().execute(() -> {
+                Minecraft.getInstance().setScreen(new BerserkSkillScreen());
+            });
         } else {
             System.out.println("Conditions not met for screen replacement");
         }
