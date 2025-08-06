@@ -16,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -64,12 +65,58 @@ public class BehelitItem extends Item {
                 
                 // Запускаем таймер на 5 минут
                 playersInDimension.put(serverPlayer.getUUID(), level.getGameTime());
+                
+                // Unlock Apostle skill tree if Passive Skill Tree mod is loaded
+                unlockApostleSkillTree(serverPlayer);
             } else {
                 serverPlayer.sendSystemMessage(Component.literal("Измерение недоступно.").withStyle(ChatFormatting.DARK_RED));
             }
         }
 
         return InteractionResultHolder.success(player.getItemInHand(hand));
+    }
+    
+    /**
+     * Unlocks the Apostle skill tree for the player
+     */
+    private void unlockApostleSkillTree(ServerPlayer player) {
+        if (!ModList.get().isLoaded("passiveskillstree")) {
+            return;
+        }
+        
+        try {
+            // Try to unlock via command first
+            player.server.getCommands().performPrefixedCommand(
+                player.server.createCommandSourceStack(),
+                "skilltree grant_tree " + player.getName().getString() + " berserkmod:apostle_tree"
+            );
+            
+            player.sendSystemMessage(Component.literal("Вы получили силы Апостола!").withStyle(ChatFormatting.DARK_RED));
+            
+        } catch (Exception e) {
+            // Fallback: try reflection-based approach
+            try {
+                unlockSkillTreeViaReflection(player);
+            } catch (Exception ex) {
+                System.err.println("Failed to unlock Apostle skill tree: " + ex.getMessage());
+            }
+        }
+    }
+    
+    /**
+     * Fallback method using reflection to unlock skill tree
+     */
+    private void unlockSkillTreeViaReflection(ServerPlayer player) throws Exception {
+        // Try to use SkillTreeApi if available
+        Class<?> skillTreeApiClass = Class.forName("net.impleri.passiveskillstree.api.SkillTreeApi");
+        java.lang.reflect.Method unlockTreeMethod = skillTreeApiClass.getMethod("unlockTree", 
+            net.minecraft.world.entity.player.Player.class, 
+            net.minecraft.resources.ResourceLocation.class);
+        
+        net.minecraft.resources.ResourceLocation treeLocation = 
+            new net.minecraft.resources.ResourceLocation("berserkmod", "apostle_tree");
+        
+        unlockTreeMethod.invoke(null, player, treeLocation);
     }
 
     @SubscribeEvent

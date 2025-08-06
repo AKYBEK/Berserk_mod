@@ -1,0 +1,78 @@
+{
+  "name": "apostle_tree",
+  "default": false,
+  "skills": [
+    {
+      "id": "berserkmod:apostle_form",
+      "icon": "minecraft:nether_star",
+      "x": 0,
+      "y": 0,
+      "requirements": [],
+      "levels": [
+        {
+          "name": "Apostle Form",
+          "description": "Transform into an Apostle",
+          "effect": {
+            "type": "command",
+            "command": "execute as @s run function berserkmod:transform_apostle"
+          }
+        }
+      ]
+    },
+    {
+      "id": "berserkmod:dark_strength",
+      "icon": "minecraft:iron_sword",
+      "x": 2,
+      "y": 1,
+      "requirements": ["berserkmod:apostle_form"],
+      "levels": [
+        {
+          "name": "Dark Strength",
+          "description": "Gain Strength I",
+          "effect": {
+            "type": "attribute",
+            "attribute": "minecraft:generic.attack_damage",
+            "operation": "add",
+            "value": 2.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "berserkmod:demonic_speed",
+      "icon": "minecraft:feather",
+      "x": -2,
+      "y": 1,
+      "requirements": ["berserkmod:apostle_form"],
+      "levels": [
+        {
+          "name": "Demonic Speed",
+          "description": "Gain Speed II",
+          "effect": {
+            "type": "attribute",
+            "attribute": "minecraft:generic.movement_speed",
+            "operation": "multiply",
+            "value": 0.3
+          }
+        }
+      ]
+    },
+    {
+      "id": "berserkmod:apostle_regeneration",
+      "icon": "minecraft:golden_apple",
+      "x": 0,
+      "y": 2,
+      "requirements": ["berserkmod:dark_strength", "berserkmod:demonic_speed"],
+      "levels": [
+        {
+          "name": "Apostle Regeneration",
+          "description": "Regenerate health over time",
+          "effect": {
+            "type": "command",
+            "command": "effect give @s minecraft:regeneration 10 1"
+          }
+        }
+      ]
+    }
+  ]
+}
