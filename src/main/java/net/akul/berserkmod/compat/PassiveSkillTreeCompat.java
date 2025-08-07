@@ -24,6 +24,12 @@ public class PassiveSkillTreeCompat {
             return;
         }
         
+        // Safety checks to prevent crashes
+        if (serverPlayer.getUUID() == null || serverPlayer.server == null) {
+            System.err.println("Cannot unlock skill tree: Invalid player data");
+            return;
+        }
+        
         try {
             // Mark player as having used Behelit
             PlayerBerserkData.markPlayerUsedBehelit(player);
@@ -37,7 +43,7 @@ public class PassiveSkillTreeCompat {
             System.out.println("Successfully unlocked Apostle skill tree for " + player.getName().getString());
             
         } catch (Exception e) {
-            // Fallback to reflection-based approach
+            // Fallback to reflection-based approach (safer)
             try {
                 unlockTreeViaReflection(serverPlayer);
             } catch (Exception ex) {
@@ -50,6 +56,11 @@ public class PassiveSkillTreeCompat {
      * Fallback method using reflection
      */
     private static void unlockTreeViaReflection(ServerPlayer player) throws Exception {
+        // Safety check
+        if (player == null || player.getUUID() == null) {
+            throw new Exception("Invalid player data for skill tree unlock");
+        }
+        
         Class<?> skillTreeApiClass = Class.forName("net.impleri.passiveskillstree.api.SkillTreeApi");
         java.lang.reflect.Method unlockTreeMethod = skillTreeApiClass.getMethod("unlockTree", 
             Player.class, ResourceLocation.class);

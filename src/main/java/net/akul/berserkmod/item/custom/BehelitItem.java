@@ -1,8 +1,8 @@
 package net.akul.berserkmod.item.custom;
 
 import net.akul.berserkmod.ModDimensions;
+import net.akul.berserkmod.data.PlayerBerserkData;
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,6 +37,11 @@ public class BehelitItem extends Item {
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         if (!(attacker instanceof Player player)) return false;
+        
+        // Safety check to prevent crashes
+        if (player.level() == null || player.getUUID() == null) {
+            return false;
+        }
         if (player.level().isClientSide) return false;
 
         // Добавляем эффект тьмы атакующему
@@ -53,23 +58,50 @@ public class BehelitItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+            // Safety checks to prevent crashes
+            if (serverPlayer.getUUID() == null || serverPlayer.server == null) {
+                return InteractionResultHolder.fail(player.getItemInHand(hand));
+            }
+            
+            // Check if player already used Behelit recently (cooldown)
+            long currentTime = level.getGameTime();
+            long lastUse = PlayerBerserkData.getPlayerTransformTime(serverPlayer);
+            if (currentTime - lastUse < 6000) { // 5 minute cooldown
+                serverPlayer.sendSystemMessage(Component.literal("The Behelit is not ready yet...").withStyle(ChatFormatting.DARK_RED));
+                return InteractionResultHolder.fail(player.getItemInHand(hand));
+            }
+            
             // Попытка телепортации в измерение "Рука Бога"
             ServerLevel targetLevel = serverPlayer.server.getLevel(ModDimensions.THE_HAND_KEY);
             if (targetLevel != null) {
+                try {
                 // Сохраняем текущее измерение игрока
                 playerOriginalDimensions.put(serverPlayer.getUUID(), serverPlayer.serverLevel());
                 
+                    // Mark player as having used Behelit
+                    PlayerBerserkData.markPlayerUsedBehelit(serverPlayer);
+                    PlayerBerserkData.setPlayerTransformTime(serverPlayer, currentTime);
+                    
                 // Телепортируем в измерение
-                serverPlayer.teleportTo(targetLevel, 0.5, 70, 0.5, serverPlayer.getYRot(), serverPlayer.getXRot());
+                    serverPlayer.teleportTo(targetLevel, 0.5, 70, 0.5, 
+                        serverPlayer.getYRot(), serverPlayer.getXRot());
                 serverPlayer.sendSystemMessage(Component.literal("Вы попали в длань Господа").withStyle(ChatFormatting.DARK_RED));
                 
                 // Запускаем таймер на 5 минут
-                playersInDimension.put(serverPlayer.getUUID(), level.getGameTime());
+                    playersInDimension.put(serverPlayer.getUUID(), currentTime);
                 
                 // Unlock Apostle skill tree if Passive Skill Tree mod is loaded
                 unlockApostleSkillTree(serverPlayer);
+                    
+                } catch (Exception e) {
+                    // Handle teleportation errors gracefully
+                    serverPlayer.sendSystemMessage(Component.literal("Failed to enter the Hand of God").withStyle(ChatFormatting.RED));
+                    System.err.println("Behelit teleportation error: " + e.getMessage());
+                    return InteractionResultHolder.fail(player.getItemInHand(hand));
+                }
             } else {
                 serverPlayer.sendSystemMessage(Component.literal("Измерение недоступно.").withStyle(ChatFormatting.DARK_RED));
+                return InteractionResultHolder.fail(player.getItemInHand(hand));
             }
         }
 
@@ -85,6 +117,11 @@ public class BehelitItem extends Item {
         }
         
         try {
+            // Safety check
+            if (player.server == null) {
+                return;
+            }
+            
             // Try to unlock via command first
             player.server.getCommands().performPrefixedCommand(
                 player.server.createCommandSourceStack(),
@@ -94,7 +131,7 @@ public class BehelitItem extends Item {
             player.sendSystemMessage(Component.literal("Вы получили силы Апостола!").withStyle(ChatFormatting.DARK_RED));
             
         } catch (Exception e) {
-            // Fallback: try reflection-based approach
+            // Fallback: try reflection-based approach (safer)
             try {
                 unlockSkillTreeViaReflection(player);
             } catch (Exception ex) {
@@ -108,6 +145,11 @@ public class BehelitItem extends Item {
      */
     private void unlockSkillTreeViaReflection(ServerPlayer player) throws Exception {
         // Try to use SkillTreeApi if available
+        if (player == null || player.getUUID() == null) {
+            throw new Exception("Invalid player data");
+        }
+        
+        // Safer reflection approach
         Class<?> skillTreeApiClass = Class.forName("net.impleri.passiveskillstree.api.SkillTreeApi");
         java.lang.reflect.Method unlockTreeMethod = skillTreeApiClass.getMethod("unlockTree", 
             net.minecraft.world.entity.player.Player.class, 
@@ -124,6 +166,11 @@ public class BehelitItem extends Item {
         if (event.phase != TickEvent.Phase.END) return;
         if (event.player.level().isClientSide) return;
         if (!(event.player instanceof ServerPlayer serverPlayer)) return;
+        
+        // Safety checks
+        if (serverPlayer.getUUID() == null || serverPlayer.level() == null) {
+            return;
+        }
 
         UUID playerId = serverPlayer.getUUID();
         
@@ -135,6 +182,7 @@ public class BehelitItem extends Item {
                 
                 // Если прошло 5 минут, возвращаем игрока
                 if (currentTime - entryTime >= DIMENSION_TIME) {
+                    try {
                     ServerLevel originalLevel = playerOriginalDimensions.get(playerId);
                     if (originalLevel == null) {
                         // Если не сохранили оригинальное измерение, возвращаем в обычный мир
@@ -151,6 +199,13 @@ public class BehelitItem extends Item {
                     // Убираем игрока из списков
                     playersInDimension.remove(playerId);
                     playerOriginalDimensions.remove(playerId);
+                        
+                    } catch (Exception e) {
+                        System.err.println("Error returning player from Hand dimension: " + e.getMessage());
+                        // Clean up anyway
+                        playersInDimension.remove(playerId);
+                        playerOriginalDimensions.remove(playerId);
+                    }
                 }
             }
         } else {

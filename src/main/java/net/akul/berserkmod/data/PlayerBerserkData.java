@@ -1,7 +1,6 @@
 package net.akul.berserkmod.data;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -16,16 +15,17 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Данные игрока для отслеживания использования Behelit
+ * Simplified player data for tracking Behelit usage
+ * Uses static storage to avoid capability sync issues
  */
 public class PlayerBerserkData implements INBTSerializable<CompoundTag> {
-    public static final Capability<PlayerBerserkData> PLAYER_BERSERK_DATA = 
-            CapabilityManager.get(new CapabilityToken<PlayerBerserkData>() {});
     
-    // Статическое хранилище для отслеживания игроков, использовавших Behelit
+    // Static storage to avoid capability sync issues during login
     private static final Map<UUID, Boolean> playersUsedBehelit = new HashMap<>();
+    private static final Map<UUID, Long> playerTransformTimes = new HashMap<>();
     
     private boolean hasUsedBehelit = false;
+    private long lastTransformTime = 0;
     
     public boolean hasUsedBehelit() {
         return hasUsedBehelit;
@@ -35,36 +35,61 @@ public class PlayerBerserkData implements INBTSerializable<CompoundTag> {
         this.hasUsedBehelit = used;
     }
     
-    // Статические методы для удобства
+    public long getLastTransformTime() {
+        return lastTransformTime;
+    }
+    
+    public void setLastTransformTime(long time) {
+        this.lastTransformTime = time;
+    }
+    
+    // Static methods for safe data access
     public static void markPlayerUsedBehelit(Player player) {
-        playersUsedBehelit.put(player.getUUID(), true);
+        if (player != null && player.getUUID() != null) {
+            playersUsedBehelit.put(player.getUUID(), true);
+        }
     }
     
     public static boolean hasPlayerUsedBehelit(Player player) {
+        if (player == null || player.getUUID() == null) {
+            return false;
+        }
         return playersUsedBehelit.getOrDefault(player.getUUID(), false);
     }
     
     public static void clearPlayerBehelitStatus(Player player) {
-        playersUsedBehelit.remove(player.getUUID());
+        if (player != null && player.getUUID() != null) {
+            playersUsedBehelit.remove(player.getUUID());
+            playerTransformTimes.remove(player.getUUID());
+        }
+    }
+    
+    public static void setPlayerTransformTime(Player player, long time) {
+        if (player != null && player.getUUID() != null) {
+            playerTransformTimes.put(player.getUUID(), time);
+        }
+    }
+    
+    public static long getPlayerTransformTime(Player player) {
+        if (player == null || player.getUUID() == null) {
+            return 0;
+        }
+        return playerTransformTimes.getOrDefault(player.getUUID(), 0L);
     }
 
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag tag = new CompoundTag();
         tag.putBoolean("hasUsedBehelit", hasUsedBehelit);
+        tag.putLong("lastTransformTime", lastTransformTime);
         return tag;
     }
 
     @Override
     public void deserializeNBT(CompoundTag nbt) {
-        hasUsedBehelit = nbt.getBoolean("hasUsedBehelit");
-    }
-    
-    @Mod.EventBusSubscriber(modid = "berserkmod", bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class CapabilityEvents {
-        @SubscribeEvent
-        public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-            event.register(PlayerBerserkData.class);
+        if (nbt != null) {
+            hasUsedBehelit = nbt.getBoolean("hasUsedBehelit");
+            lastTransformTime = nbt.getLong("lastTransformTime");
         }
     }
 }
