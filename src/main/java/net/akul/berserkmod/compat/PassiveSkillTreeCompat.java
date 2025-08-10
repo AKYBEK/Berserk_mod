@@ -1,11 +1,10 @@
 package net.akul.berserkmod.compat;
 
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.ModList;
 
 /**
- * Упрощенная совместимость с Passive Skill Tree mod
+ * Simplified compatibility with Passive Skill Tree mod
  */
 public class PassiveSkillTreeCompat {
     public static final String MOD_ID = "passiveskillstree";
@@ -15,21 +14,21 @@ public class PassiveSkillTreeCompat {
     }
     
     /**
-     * Простая попытка разблокировать дерево навыков
+     * Simple attempt to unlock skill tree
      */
-    public static void unlockApostleTree(Player player) {
-        if (!isLoaded() || !(player instanceof ServerPlayer serverPlayer)) {
+    public static void unlockApostleTree(ServerPlayer serverPlayer) {
+        if (!isLoaded() || serverPlayer == null) {
             return;
         }
         
         try {
-            // Простая команда без сложной логики
+            // Simple command without complex logic
             serverPlayer.server.getCommands().performPrefixedCommand(
                 serverPlayer.server.createCommandSourceStack(),
-                "skilltree grant_tree " + player.getName().getString() + " berserkmod:apostle_tree"
+                "skilltree grant_tree " + serverPlayer.getName().getString() + " berserkmod:apostle_tree"
             );
         } catch (Exception e) {
-            // Игнорируем ошибки, чтобы не крашить игру
+            // Ignore errors to prevent crashes
             System.out.println("Could not unlock skill tree: " + e.getMessage());
         }
     }
