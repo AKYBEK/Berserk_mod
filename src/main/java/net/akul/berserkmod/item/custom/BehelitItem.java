@@ -1,16 +1,12 @@
 package net.akul.berserkmod.item.custom;
 
 import net.akul.berserkmod.ModDimensions;
-import net.akul.berserkmod.compat.PassiveSkillTreeCompat;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +20,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class BehelitItem extends Item {
-    // Simple storage without complex capabilities
     private static final Map<UUID, Long> playersInDimension = new HashMap<>();
     private static final Map<UUID, ServerLevel> playerOriginalDimensions = new HashMap<>();
     private static final Map<UUID, Long> playerCooldowns = new HashMap<>();
@@ -34,21 +29,6 @@ public class BehelitItem extends Item {
     public BehelitItem(Properties properties) {
         super(properties);
         MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    @Override
-    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        if (!(attacker instanceof Player player)) return false;
-        if (player.level().isClientSide) return false;
-
-        // Simple effect without complex logic
-        player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 100, 0, false, false));
-        
-        if (target instanceof Player targetPlayer) {
-            targetPlayer.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 100, 0, false, false));
-        }
-
-        return super.hurtEnemy(stack, target, attacker);
     }
 
     @Override
@@ -69,7 +49,7 @@ public class BehelitItem extends Item {
             }
         }
         
-        // Simple teleportation without complex logic
+        // Teleport to dimension
         ServerLevel targetLevel = serverPlayer.server.getLevel(ModDimensions.THE_HAND_KEY);
         if (targetLevel != null) {
             // Save data
@@ -81,13 +61,6 @@ public class BehelitItem extends Item {
             serverPlayer.teleportTo(targetLevel, 0.5, 70, 0.5, 
                 serverPlayer.getYRot(), serverPlayer.getXRot());
             serverPlayer.sendSystemMessage(Component.literal("You entered the Hand of God").withStyle(ChatFormatting.DARK_RED));
-            
-            // Simple effects
-            serverPlayer.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 6000, 1));
-            serverPlayer.addEffect(new MobEffectInstance(MobEffects.SPEED, 6000, 1));
-            
-            // Try to unlock skill tree
-            PassiveSkillTreeCompat.unlockApostleTree(serverPlayer);
         }
 
         return InteractionResultHolder.success(player.getItemInHand(hand));

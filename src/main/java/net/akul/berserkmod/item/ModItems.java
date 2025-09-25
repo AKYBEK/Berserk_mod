@@ -1,8 +1,7 @@
 package net.akul.berserkmod.item;
 
 import net.akul.berserkmod.berserkmod;
-import net.akul.berserkmod.item.custom.BehelitItem; // <-- ВАЖНО: импорт BehelitItem
-
+import net.akul.berserkmod.item.custom.BehelitItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
