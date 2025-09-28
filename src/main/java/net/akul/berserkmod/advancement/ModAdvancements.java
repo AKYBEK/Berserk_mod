@@ -20,7 +20,7 @@ public class ModAdvancements {
     public static void grantBehelitAdvancement(net.minecraft.server.level.ServerPlayer player) {
         if (player.getServer() != null) {
             Advancement advancement = player.getServer().getAdvancements()
-                .getAdvancement(new ResourceLocation(berserkmod.MOD_ID, "angel_or_demon"));
+                .getAdvancement(new ResourceLocation(berserkmod.MOD_ID, "Angel ? Or Demon ?"));
             
             if (advancement != null) {
                 net.minecraft.server.PlayerAdvancements playerAdvancements = player.getAdvancements();
