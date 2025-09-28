@@ -1,4 +1,6 @@
 {
   "item.berserkmod.behelit": "Behelit",
-  "creativetab.berserk_tab": "Berserk Mod"
+  "creativetab.berserk_tab": "Berserk Mod",
+  "advancement.berserkmod.angel_or_demon.title": "Ангел ? Или Демон ?",
+  "advancement.berserkmod.angel_or_demon.description": "Use the Behelit to enter the Hand of God dimension"
 }

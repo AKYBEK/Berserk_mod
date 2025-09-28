@@ -1,0 +1,28 @@
+{
+  "display": {
+    "icon": {
+      "item": "berserkmod:behelit"
+    },
+    "title": {
+      "translate": "advancement.berserkmod.angel_or_demon.title"
+    },
+    "description": {
+      "translate": "advancement.berserkmod.angel_or_demon.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "minecraft:textures/gui/advancements/backgrounds/adventure.png"
+  },
+  "criteria": {
+    "use_behelit": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "use_behelit"
+    ]
+  ]
+}

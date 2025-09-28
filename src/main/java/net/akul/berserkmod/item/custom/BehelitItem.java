@@ -1,6 +1,7 @@
 package net.akul.berserkmod.item.custom;
 
 import net.akul.berserkmod.ModDimensions;
+import net.akul.berserkmod.advancement.ModAdvancements;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -60,6 +61,10 @@ public class BehelitItem extends Item {
             // Teleport
             serverPlayer.teleportTo(targetLevel, 0.5, 70, 0.5, 
                 serverPlayer.getYRot(), serverPlayer.getXRot());
+            
+            // Grant achievement
+            ModAdvancements.grantBehelitAdvancement(serverPlayer);
+            
             serverPlayer.sendSystemMessage(Component.literal("You entered the Hand of God").withStyle(ChatFormatting.DARK_RED));
         }
 
